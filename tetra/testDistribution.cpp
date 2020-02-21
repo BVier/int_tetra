@@ -22,7 +22,7 @@ struct Randgen
 };
 
 
-int ninside( Vec3dF cs[8], int N)
+int ninside(std::array<Vec3dF, 8> cs, int N)
 {
     auto o = Octagon(cs);
     auto rnd = Randgen{};
@@ -37,10 +37,25 @@ int ninside( Vec3dF cs[8], int N)
     return n;
 }
 
-int main()
+std::array<int,3> ninsideTwoDomains(std::array<Vec3dF, 8> corner1, std::array<Vec3dF, 8> corner2, int N)
 {
-    // 50% of the volume of the unit cube
-    Vec3dF cs[8] = { Vec3dF{0, .5,  0},
+    auto o1 = Octagon(corner1);
+    auto o2 = Octagon(corner2);
+    auto rnd = Randgen{};
+    
+    std::array<int, 3> counter{ {0,0,0} };
+
+    for (int i = 0; i < N; ++i) {
+        Vec3dF p = Vec3dF{ rnd(), rnd(), rnd() };
+        bool c1 = o1.contains(p);
+        bool c2 = o2.contains(p);
+        counter[c1 + c2]++;
+    }
+    return counter;
+}
+
+int testShouldBe50PercentageOfPrismaCube(int N) {
+    std::array<Vec3dF, 8> cs = { Vec3dF{0, .5,  0},
                                       Vec3dF{0,  1, .5},
                                       Vec3dF{0,  0, .5},
                                       Vec3dF{0, .5,  1},
@@ -48,10 +63,31 @@ int main()
                                       Vec3dF{1,  1, .5},
                                       Vec3dF{1,  0, .5},
                                       Vec3dF{1, .5,  1} };
-    const int N = 1'000'000;
 
-    int n = ninside(cs, N);
-
-    printf("%5.2lf%%\n", n * 100.0 / N);
+    return ninside(cs, N);
 }
 
+std::array<int,3> testPointShouldNeverBeAcceptedByTwoOrZeroDomains(int N) {
+    std::array<Vec3dF, 8> corner1 = {
+        Vec3dF{0, 0, 0},
+        Vec3dF{0.5, 0, 0},
+        Vec3dF{0, 1, 0},
+        Vec3dF{0.5, 1, 0},
+        Vec3dF{0, 0, 1},
+        Vec3dF{0.5, 0, 1},
+        Vec3dF{0, 1, 1},
+        Vec3dF{0.5, 1, 1},
+    };
+    std::array<Vec3dF, 8> corner2 = {
+        Vec3dF{0.5, 0, 0},
+        Vec3dF{1, 0, 0},
+        Vec3dF{0.5, 1, 0},
+        Vec3dF{1, 1, 0},
+        Vec3dF{0.5, 0, 1},
+        Vec3dF{1, 0, 1},
+        Vec3dF{0.5, 1, 1},
+        Vec3dF{1, 1, 1},
+    };
+
+    return ninsideTwoDomains(corner1, corner2, N);
+}

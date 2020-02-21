@@ -1,4 +1,3 @@
-
 #include "TetraPacker.hpp"
 
 /*
@@ -17,7 +16,7 @@ bool Norm::isAbove(Vec3d point) {
 /*
 	TETRA
 */
-Tetra::Tetra(Vec3d corners[4])
+Tetra::Tetra(std::array<Vec3d,4> corners)
 {
 	this->norms[0] = computeNorm(corners[0], corners[1], corners[2]);
 	this->norms[1] = computeNorm(corners[0], corners[2], corners[3]);
@@ -46,20 +45,20 @@ bool Tetra::contains(Vec3d p) {
 	TETRAPACKER
 */
 
-Octagon::Octagon(Vec3dF corners[8])
+Octagon::Octagon(std::array<Vec3dF, 8> corners)
 {
 	initTetras(corners);
 }
 
-Octagon::Octagon(Vec3dF corners[8], int16_t precision)
+Octagon::Octagon(std::array<Vec3dF, 8> corners, int16_t precision)
 {
 	this->precision = precision;
 	initTetras(corners);
 }
 
-void Octagon::initTetras(Vec3dF floatCorners[8]) 
+void Octagon::initTetras(std::array<Vec3dF, 8> floatCorners)
 {
-	Vec3d corners[8];
+	std::array<Vec3d, 8> corners;
 	for (int i = 0; i < 8; i++) {
 		corners[i] = castToInt(floatCorners[i], precision);
 	}
@@ -68,7 +67,7 @@ void Octagon::initTetras(Vec3dF floatCorners[8])
 	Vec3d last = corners[5];
 	for (int i = 0; i < 6; i++) {
 		Vec3d next = corners[this->cornerOrder[i]];
-		Vec3d tetraCorners[4] = { start, end, last, next };
+		std::array<Vec3d, 4> tetraCorners = { start, end, last, next };
 		this->tetras[i] = Tetra(tetraCorners);
 		last = next;
 	}

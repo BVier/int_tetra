@@ -24,10 +24,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="testDistribution.cpp">
+    <ClCompile Include="testRandomizedTetra.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="testRandomizedTetra.cpp">
+    <ClCompile Include="testDistribution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
