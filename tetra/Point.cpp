@@ -1,14 +1,4 @@
 #include "Point.hpp"
-#include <math.h>
-
-
-Vec3d add(Vec3d p1, Vec3d p2) {
-	Vec3d res;
-	res[0] = p1[0] + p2[0];
-	res[1] = p1[1] + p2[1];
-	res[2] = p1[2] + p2[2];
-	return res;
-}
 
 Vec3d subtract(Vec3d p1, Vec3d p2) {
 	Vec3d res;
@@ -17,23 +7,6 @@ Vec3d subtract(Vec3d p1, Vec3d p2) {
 	res[2] = p1[2] - p2[2];
 	return res;
 }
-
-Vec3d multiply(Vec3d p1, Vec3d p2) {
-	Vec3d res;
-	res[0] = p1[0] * p2[0];
-	res[1] = p1[1] * p2[1];
-	res[2] = p1[2] * p2[2];
-	return res;
-}
-
-Vec3d divide(Vec3d p1, Vec3d p2) {
-	Vec3d res;
-	res[0] = p1[0] / p2[0];
-	res[1] = p1[1] / p2[1];
-	res[2] = p1[2] / p2[2];
-	return res;
-}
-
 
 Vec3d cross(Vec3d v1, Vec3d v2) {
 	Vec3d result;

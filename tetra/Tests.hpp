@@ -1,5 +1,4 @@
 #pragma once
-#include "Point.hpp"
 #include "TetraPacker.hpp"
 
 int testShouldBe50PercentageOfPrismaCube(int N);

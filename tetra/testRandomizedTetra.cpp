@@ -1,5 +1,4 @@
 #include "Tests.hpp"
-#include<array>
 
 double randomFloat(int start, double range) {
     return double(start) + double(rand()) / double((RAND_MAX)) * range;

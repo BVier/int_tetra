@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <chrono>
 #include <random>
-#include "TetraPacker.hpp"
+#include "Tests.hpp"
 
 struct Randgen
 {
