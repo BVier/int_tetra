@@ -43,14 +43,8 @@ Vec3d cross(Vec3d v1, Vec3d v2) {
 	return result;
 }
 
-double dot(Vec3d p1, Vec3d p2)
+int64_t dot(Vec3d p1, Vec3d p2)
 {
 	return p1[0] * p2[0] + p1[1] * p2[1] + p1[2] * p2[2];
 }
-
-double euclid(Vec3d p)
-{
-	return sqrt(pow(p[0], 2) + pow(p[1], 2) + pow(p[2], 2));
-}
-
 

@@ -4,8 +4,14 @@
 /*
 	NORM
 */
+bool Norm::isAbove(Vec3d point, bool equal) {
+	if (equal)
+		return dot(point, this->normVector) >= this->heightOfPlane;
+	return dot(point, this->normVector) > this->heightOfPlane;
+}
+
 bool Norm::isAbove(Vec3d point) {
-	return dot(point, this->normVector) >= this->heightOfPlane;
+	return isAbove(point, true);
 }
 
 /*
@@ -27,9 +33,10 @@ bool Tetra::contains(Vec3d p) {
 	}
 
 	bool contains = true;
-	for (int i = 0; i < 4 && contains; i++) {
+	for (int i = 0; i < 3 && contains; i++) {
 		contains &= this->norms[i].isAbove(p);
 	}
+	contains &= this->norms[3].isAbove(p, false);
 	return contains;
 }
 
@@ -39,8 +46,23 @@ bool Tetra::contains(Vec3d p) {
 	TETRAPACKER
 */
 
-Octagon::Octagon(Vec3d corners[8]) 
+Octagon::Octagon(Vec3dF corners[8])
 {
+	initTetras(corners);
+}
+
+Octagon::Octagon(Vec3dF corners[8], int16_t precision)
+{
+	this->precision = precision;
+	initTetras(corners);
+}
+
+void Octagon::initTetras(Vec3dF floatCorners[8]) 
+{
+	Vec3d corners[8];
+	for (int i = 0; i < 8; i++) {
+		corners[i] = castToInt(floatCorners[i], precision);
+	}
 	Vec3d start = corners[0];
 	Vec3d end = corners[7];
 	Vec3d last = corners[5];
@@ -52,8 +74,9 @@ Octagon::Octagon(Vec3d corners[8])
 	}
 }
 
-bool Octagon::contains(Vec3d p)
+bool Octagon::contains(Vec3dF point)
 {
+	Vec3d p = castToInt(point, this->precision);
 	for (int i = 0; i < 6; i++) {
 		Tetra tetra = this->tetras[i];
 		if (tetra.contains(p)) {
@@ -67,18 +90,18 @@ bool Octagon::contains(Vec3d p)
 	FUNCTIONS
 */
 
-Norm computeNorm(Vec3d p1, Vec3d p2, Vec3d p3, bool normalized) {
+Norm computeNorm(Vec3d p1, Vec3d p2, Vec3d p3) {
 	Vec3d v1 = subtract(p2, p1);
 	Vec3d v2 = subtract(p1, p3);
 	Vec3d c = cross(v2, v1);
-	if (normalized) {
-		double euclideanDist = euclid(c);
-		c = divide(c, Vec3d({ euclideanDist, euclideanDist, euclideanDist }));
-	}
-	double reference = dot(c, p1);
+	int64_t reference = dot(c, p1);
 	return { c, reference };
 }
 
-Norm computeNorm(Vec3d p1, Vec3d p2, Vec3d p3) {
-	return computeNorm(p1, p2, p3, false);
+Vec3d castToInt(Vec3dF v, int16_t precision) {
+	Vec3d new_v;
+	new_v[0] = int(v[0] * precision);
+	new_v[1] = int(v[1] * precision);
+	new_v[2] = int(v[2] * precision);
+	return new_v;
 }

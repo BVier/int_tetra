@@ -22,16 +22,17 @@ struct Randgen
 };
 
 
-int ninside( Vec3d cs[8], int N)
+int ninside( Vec3dF cs[8], int N)
 {
     auto o = Octagon(cs);
     auto rnd = Randgen{};
     int n = 0;
 
     for (int i = 0; i < N; ++i) {
-        Vec3d p = Vec3d{rnd(), rnd(), rnd()};
-        if (o.contains(p))
+        Vec3dF p = Vec3dF{ rnd(), rnd(), rnd() };
+        if (o.contains(p)) {
             n++;
+        }
     }
     return n;
 }
@@ -39,15 +40,14 @@ int ninside( Vec3d cs[8], int N)
 int main()
 {
     // 50% of the volume of the unit cube
-    Vec3d cs [8] = {Vec3d{0, .5,  0},
-                                      Vec3d{0,  0, .5},
-                                      Vec3d{0,  1, .5},
-                                      Vec3d{0, .5,  1},
-                                      Vec3d{1, .5,  0},
-                                      Vec3d{1,  0, .5},
-                                      Vec3d{1,  1, .5},
-                                      Vec3d{1, .5,  1}};
-
+    Vec3dF cs[8] = { Vec3dF{0, .5,  0},
+                                      Vec3dF{0,  1, .5},
+                                      Vec3dF{0,  0, .5},
+                                      Vec3dF{0, .5,  1},
+                                      Vec3dF{1, .5,  0},
+                                      Vec3dF{1,  1, .5},
+                                      Vec3dF{1,  0, .5},
+                                      Vec3dF{1, .5,  1} };
     const int N = 1'000'000;
 
     int n = ninside(cs, N);
