@@ -1,106 +1,139 @@
 #include "TetraPacker.hpp"
 
-/*
-	NORM
-*/
-bool Norm::isAbove(Vec3d point, bool equal) {
-	if (equal)
-		return dot(point, this->normVector) >= this->heightOfPlane;
-	return dot(point, this->normVector) > this->heightOfPlane;
-}
+namespace tetra {
 
-bool Norm::isAbove(Vec3d point) {
-	return isAbove(point, true);
-}
+	namespace __detail {
 
-/*
-	TETRA
-*/
-Tetra::Tetra(std::array<Vec3d,4> corners)
-{
-	this->norms[0] = computeNorm(corners[0], corners[1], corners[2]);
-	this->norms[1] = computeNorm(corners[0], corners[2], corners[3]);
-	this->norms[2] = computeNorm(corners[0], corners[3], corners[1]);
-	this->norms[3] = computeNorm(corners[1], corners[3], corners[2]);
-	
-	this->valid = true;
-}
+		/*
+			FUNCTIONS
+		*/
 
-bool Tetra::contains(Vec3d p) {
-	if (!this->valid) {
-		return false;
-	}
+		intVec subtract(intVec v1, intVec v2) { return { {v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]} }; }
 
-	bool contains = true;
-	for (int i = 0; i < 3 && contains; i++) {
-		contains &= this->norms[i].isAbove(p);
-	}
-	contains &= this->norms[3].isAbove(p, false);
-	return contains;
-}
-
-
-
-/*
-	TETRAPACKER
-*/
-
-Octagon::Octagon(std::array<Vec3dF, 8> corners)
-{
-	initTetras(corners);
-}
-
-Octagon::Octagon(std::array<Vec3dF, 8> corners, int16_t precision)
-{
-	this->precision = precision;
-	initTetras(corners);
-}
-
-void Octagon::initTetras(std::array<Vec3dF, 8> floatCorners)
-{
-	std::array<Vec3d, 8> corners;
-	for (int i = 0; i < 8; i++) {
-		corners[i] = castToInt(floatCorners[i], precision);
-	}
-	Vec3d start = corners[0];
-	Vec3d end = corners[7];
-	Vec3d last = corners[5];
-	for (int i = 0; i < 6; i++) {
-		Vec3d next = corners[this->cornerOrder[i]];
-		std::array<Vec3d, 4> tetraCorners = { start, end, last, next };
-		this->tetras[i] = Tetra(tetraCorners);
-		last = next;
-	}
-}
-
-bool Octagon::contains(Vec3dF point)
-{
-	Vec3d p = castToInt(point, this->precision);
-	for (int i = 0; i < 6; i++) {
-		Tetra tetra = this->tetras[i];
-		if (tetra.contains(p)) {
-			return true;
+		intVec cross(intVec v1, intVec v2) {
+			intVec result;
+			result[0] = v1[1] * v2[2] - v1[2] * v2[1];
+			result[1] = v1[2] * v2[0] - v1[0] * v2[2];
+			result[2] = v1[0] * v2[1] - v1[1] * v2[0];
+			return result;
 		}
+
+		int64_t dot(intVec v1, intVec v2) { return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]; }
+
+		Norm computeNorm(intVec p1, intVec p2, intVec p3) {
+			intVec v1 = subtract(p2, p1);
+			intVec v2 = subtract(p1, p3);
+			intVec c = cross(v2, v1);
+			return { c, dot(c, p1) };
+		}
+
+		intVec integerized(Vec3d vec)
+		{
+			return { {int(vec[0] * precision), int(vec[1] * precision), int(vec[2] * precision)} };
+		}
+
+		std::array<intVec, 8> integerizedArray(std::array<Vec3d, 8> vertices)
+		{
+			std::array<intVec, 8> intVert = {};
+			for (int i = 0; i < 8; i++) intVert[i] = integerized(vertices[i]);
+			return intVert;
+		}
+		
+		/*
+			NORM
+		*/
+		bool Norm::isAboveOrEqual(intVec point) {
+			return dot(point, this->normVector) >= this->heightOfPlane;
+		}
+
+		bool Norm::isAbove(intVec point) {
+			return dot(point, this->normVector) > this->heightOfPlane;
+		}
+
+		/*
+			TETRA
+		*/
+		Tetra::Tetra(std::array<intVec, 4> corners)
+		{
+			this->norms[0] = computeNorm(corners[0], corners[1], corners[2]);
+			this->norms[1] = computeNorm(corners[0], corners[2], corners[3]);
+			this->norms[2] = computeNorm(corners[0], corners[3], corners[1]);
+			this->norms[3] = computeNorm(corners[1], corners[3], corners[2]);
+
+			this->valid = true;
+		}
+
+		bool Tetra::contains(intVec p) {
+			if (!this->valid) {
+				return false;
+			}
+
+			bool contains = true;
+			for (int i = 0; i < 3 && contains; i++) {
+				contains &= this->norms[i].isAboveOrEqual(p);
+			}
+			contains &= this->norms[3].isAbove(p);
+			return contains;
+		}
+
+
+		/*
+			TETRAPACKER
+		*/
+
+		_OctagonImpl::_OctagonImpl(std::array<intVec, 8> corners)
+		{
+			intVec start = corners[0];
+			intVec end = corners[7];
+			intVec last = corners[5];
+			for (int i = 0; i < 6; i++) {
+				intVec next = corners[this->cornerOrder[i]];
+				std::array<intVec, 4> tetraCorners = { start, end, last, next };
+				this->tetras[i] = Tetra(tetraCorners);
+				last = next;
+			}
+		}
+
+		bool contains(_OctagonImpl oi, intVec point)
+		{
+			for (Tetra tetra : oi.tetras) {
+				if (tetra.contains(point)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+	} //namespace __detail
+
+
+	// These are declared here because _Octagon_Impl is an imcomplete type in the header.
+	Octagon::Octagon() = default;
+	Octagon::~Octagon() = default;
+	Octagon::Octagon(Octagon && o) = default;
+
+	Octagon::Octagon(const std::array<Vec3d, 8> & vertices)
+		: oi(std::make_unique<__detail::_OctagonImpl>(__detail::integerizedArray(vertices))) {}
+
+	bool Octagon::contains(const Vec3d & p) const
+	{
+		if (!oi)
+			throw std::runtime_error("contains() on empty octagon");
+		return __detail::contains(*oi, __detail::integerized(p));
 	}
-	return false;
-}
 
-/*
-	FUNCTIONS
-*/
+	bool Octagon::contains(double x, double y, double z) const
+	{
+		return contains({ {x, y, z} });
+	}
 
-Norm computeNorm(Vec3d p1, Vec3d p2, Vec3d p3) {
-	Vec3d v1 = subtract(p2, p1);
-	Vec3d v2 = subtract(p1, p3);
-	Vec3d c = cross(v2, v1);
-	int64_t reference = dot(c, p1);
-	return { c, reference };
-}
+	void Octagon::operator=(Octagon o)
+	{
+		swap(*this, o);
+	}
 
-Vec3d castToInt(Vec3dF v, int16_t precision) {
-	Vec3d new_v;
-	new_v[0] = int(v[0] * precision);
-	new_v[1] = int(v[1] * precision);
-	new_v[2] = int(v[2] * precision);
-	return new_v;
+	void swap(Octagon & a, Octagon & b) {
+		std::swap(a.oi, b.oi);
+	}
+
 }

@@ -150,7 +150,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Point.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="testRandomizedTetra.cpp" />
     <ClCompile Include="testDistribution.cpp" />
@@ -158,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tests.hpp" />
-    <ClInclude Include="Point.hpp" />
     <ClInclude Include="TetraPacker.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
