@@ -12,20 +12,13 @@ namespace tetra {
 			bool isAbove(intVec v);
 		};
 
-		struct Tetra {
-			Norm norms[4] = {};
-			bool valid = false;
-			Tetra() {};
-			Tetra(std::array<intVec, 4> corners);
-			bool contains(intVec p);
-		};
-
 		struct _OctagonImpl
 		{
 			int cornerOrder[6] = { 1, 3, 2, 6, 4, 5 };
-			std::array<Tetra, 6> tetras = {};
+			Norm tetras[6][4];
 		public:
 			_OctagonImpl(std::array<intVec, 8> corners);
+			void addTetra(int index, std::array<intVec, 4> tetraCorners);
 		};
 
 		bool contains(_OctagonImpl oi, intVec point);

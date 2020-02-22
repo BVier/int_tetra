@@ -51,34 +51,7 @@ namespace tetra {
 		}
 
 		/*
-			TETRA
-		*/
-		Tetra::Tetra(std::array<intVec, 4> corners)
-		{
-			this->norms[0] = computeNorm(corners[0], corners[1], corners[2]);
-			this->norms[1] = computeNorm(corners[0], corners[2], corners[3]);
-			this->norms[2] = computeNorm(corners[0], corners[3], corners[1]);
-			this->norms[3] = computeNorm(corners[1], corners[3], corners[2]);
-
-			this->valid = true;
-		}
-
-		bool Tetra::contains(intVec p) {
-			if (!this->valid) {
-				return false;
-			}
-
-			bool contains = true;
-			for (int i = 0; i < 3 && contains; i++) {
-				contains &= this->norms[i].isAboveOrEqual(p);
-			}
-			contains &= this->norms[3].isAbove(p);
-			return contains;
-		}
-
-
-		/*
-			TETRAPACKER
+			OCTAGON
 		*/
 
 		_OctagonImpl::_OctagonImpl(std::array<intVec, 8> corners)
@@ -88,16 +61,27 @@ namespace tetra {
 			intVec last = corners[5];
 			for (int i = 0; i < 6; i++) {
 				intVec next = corners[this->cornerOrder[i]];
-				std::array<intVec, 4> tetraCorners = { start, end, last, next };
-				this->tetras[i] = Tetra(tetraCorners);
+				this->addTetra(i, { start, end, last, next });
 				last = next;
 			}
 		}
 
+		void _OctagonImpl::addTetra(int index, std::array<intVec,4> corners)
+		{
+			this->tetras[index][0] = computeNorm(corners[0], corners[1], corners[2]);
+			this->tetras[index][1] = computeNorm(corners[0], corners[2], corners[3]);
+			this->tetras[index][2] = computeNorm(corners[0], corners[3], corners[1]);
+			this->tetras[index][3] = computeNorm(corners[1], corners[3], corners[2]);
+		}
+
 		bool contains(_OctagonImpl oi, intVec point)
 		{
-			for (Tetra tetra : oi.tetras) {
-				if (tetra.contains(point)) {
+			for (int t_i = 0; t_i < 6; t_i++) {
+				bool contains = oi.tetras[t_i][3].isAbove(point);
+				for (int n_i = 0; contains & (n_i < 3); n_i++) {
+					contains &= oi.tetras[t_i][n_i].isAboveOrEqual(point);
+				}
+				if (contains) {
 					return true;
 				}
 			}
