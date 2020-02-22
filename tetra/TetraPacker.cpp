@@ -20,13 +20,6 @@ namespace tetra {
 
 		int64_t dot(intVec v1, intVec v2) { return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]; }
 
-		Norm computeNorm(intVec p1, intVec p2, intVec p3) {
-			intVec v1 = subtract(p2, p1);
-			intVec v2 = subtract(p1, p3);
-			intVec c = cross(v2, v1);
-			return { c, dot(c, p1) };
-		}
-
 		intVec integerized(Vec3d vec)
 		{
 			return { {int(vec[0] * precision), int(vec[1] * precision), int(vec[2] * precision)} };
@@ -40,13 +33,29 @@ namespace tetra {
 		}
 		
 		/*
-			NORM
+			PLANE
 		*/
-		bool Norm::isAboveOrEqual(intVec point) {
+		struct Plane {
+			intVec normVector;
+			int64_t heightOfPlane;
+			Plane() {};
+			Plane(std::array<intVec, 3> vecs);
+			bool isAboveOrEqual(intVec v);
+			bool isAbove(intVec v);
+		};
+
+		Plane::Plane(std::array<intVec, 3> vecs) {
+			intVec v1 = subtract(vecs[1], vecs[0]);
+			intVec v2 = subtract(vecs[0], vecs[2]);
+			this->normVector = cross(v2, v1);
+			this->heightOfPlane = dot(this->normVector, vecs[0]);
+		}
+
+		bool Plane::isAboveOrEqual(intVec point) {
 			return dot(point, this->normVector) >= this->heightOfPlane;
 		}
 
-		bool Norm::isAbove(intVec point) {
+		bool Plane::isAbove(intVec point) {
 			return dot(point, this->normVector) > this->heightOfPlane;
 		}
 
@@ -54,6 +63,14 @@ namespace tetra {
 			OCTAGON
 		*/
 
+		struct _OctagonImpl
+		{
+			int cornerOrder[6] = { 1, 3, 2, 6, 4, 5 };
+			Plane tetras[6][4];
+		public:
+			_OctagonImpl(std::array<intVec, 8> corners);
+			void addTetra(int index, std::array<intVec, 4> tetraCorners);
+		};
 		_OctagonImpl::_OctagonImpl(std::array<intVec, 8> corners)
 		{
 			intVec start = corners[0];
@@ -68,10 +85,10 @@ namespace tetra {
 
 		void _OctagonImpl::addTetra(int index, std::array<intVec,4> corners)
 		{
-			this->tetras[index][0] = computeNorm(corners[0], corners[1], corners[2]);
-			this->tetras[index][1] = computeNorm(corners[0], corners[2], corners[3]);
-			this->tetras[index][2] = computeNorm(corners[0], corners[3], corners[1]);
-			this->tetras[index][3] = computeNorm(corners[1], corners[3], corners[2]);
+			this->tetras[index][0] = Plane({ corners[0], corners[1], corners[2] });
+			this->tetras[index][1] = Plane({ corners[0], corners[2], corners[3] });
+			this->tetras[index][2] = Plane({ corners[0], corners[3], corners[1] });
+			this->tetras[index][3] = Plane({ corners[1], corners[3], corners[2] });
 		}
 
 		bool contains(_OctagonImpl oi, intVec point)

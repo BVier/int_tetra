@@ -5,24 +5,8 @@ namespace tetra {
 	namespace __detail {
 		typedef std::array<int64_t, 3> intVec;
 
-		struct Norm {
-			intVec normVector;
-			int64_t heightOfPlane;
-			bool isAboveOrEqual(intVec v);
-			bool isAbove(intVec v);
-		};
-
-		struct _OctagonImpl
-		{
-			int cornerOrder[6] = { 1, 3, 2, 6, 4, 5 };
-			Norm tetras[6][4];
-		public:
-			_OctagonImpl(std::array<intVec, 8> corners);
-			void addTetra(int index, std::array<intVec, 4> tetraCorners);
-		};
-
-		bool contains(_OctagonImpl oi, intVec point);
-
+		struct _OctagonImpl;
+		
 	}
 
 
