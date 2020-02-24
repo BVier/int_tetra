@@ -93,12 +93,17 @@ namespace tetra {
 
 		bool contains(_OctagonImpl oi, intVec point)
 		{
+			// Iterate over all 6 Tetrahedrons
 			for (int t_i = 0; t_i < 6; t_i++) {
-				bool contains = oi.tetras[t_i][3].isAbove(point);
-				for (int n_i = 0; contains & (n_i < 3); n_i++) {
-					contains &= oi.tetras[t_i][n_i].isAboveOrEqual(point);
+				// The point must be above the last plane of the tetrahedron.
+				// By not accepting points on the plane we avoid accepting a point by two domains.
+				bool tetraContains = oi.tetras[t_i][3].isAbove(point);
+				// Only iterate while the all 
+				for (int n_i = 0; tetraContains & (n_i < 3); n_i++) {
+					// For all other planes we accept also points which are exactly on the plane.
+					tetraContains &= oi.tetras[t_i][n_i].isAboveOrEqual(point);
 				}
-				if (contains) {
+				if (tetraContains) {
 					return true;
 				}
 			}
