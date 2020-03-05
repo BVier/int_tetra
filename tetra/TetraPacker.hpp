@@ -10,7 +10,7 @@ namespace tetra {
 	}
 
 
-	const int16_t precision = 10;
+	const int16_t precision = 1000;
 
 	typedef std::array<double, 3> Vec3d;
 
@@ -27,6 +27,8 @@ namespace tetra {
 
 		bool contains(const Vec3d& p) const;
 		bool contains(double x, double y, double z) const;
+
+		bool isValid();
 
 	private:
 		std::unique_ptr<__detail::_OctagonImpl> oi;

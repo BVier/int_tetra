@@ -70,3 +70,23 @@ std::array<bool, 18> testRandomizedTetraShouldAcceptOnlyFirst6Edges() {
     }
     return containsEdge;
 }
+
+bool testTooSmallOcta() {
+    tetra::Octagon o = tetra::Octagon(generateRandomCorners());
+    return o.isValid();
+}
+
+bool testBigEnoughOcta() {
+    std::array<tetra::Vec3d, 8> corners{ {
+            { 0, 0, 0 },
+            { 5, 0, 0 },
+            { 0, 5, 0 },
+            { 5, 5, 0 },
+            { 0, 0, 5 },
+            { 5, 0, 5 },
+            { 0, 5, 5 },
+            { 5, 5, 5 },
+    } };
+    auto o = tetra::Octagon(corners);
+    return o.isValid();
+}
