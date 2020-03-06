@@ -93,10 +93,12 @@ struct PointArray
 template <std::size_t size>
 array<int, size + 1> acceptedByDomains(array<array<Vec3d,8>, size> vertices, int N)
 {
+    auto rnd = Randgen{};
+
     array<Octagon, size> octs = {};
     for (int i = 0; i < size; i++) { octs[i] = Octagon(vertices[i]); }
-    auto rnd = Randgen{};
     array<int, size + 1> counter = {};
+    
     std::ofstream csv("doublePoints" + std::to_string(size) + ".csv");
     for (int i = 0; i < N; ++i) {
         Vec3d p = Vec3d{ rnd(), rnd(), rnd() };
@@ -119,30 +121,30 @@ array<int, size + 1> acceptedByDomains(array<array<Vec3d,8>, size> vertices, int
 std::array<int, 3> testPointShouldNeverBeAcceptedByTwoOrZeroDomains(int N) {
     auto rnd = Randgen{};
     auto p1 = Vec3d{ rnd(), 0, 0 };
-    auto p2 = Vec3d{ rnd(), 1, 0 };
-    auto p3 = Vec3d{ rnd(), 0, 1 };
-    auto p4 = Vec3d{ rnd(), 1, 1 };
+    auto p2 = Vec3d{ rnd(), range, 0 };
+    auto p3 = Vec3d{ rnd(), 0, range };
+    auto p4 = Vec3d{ rnd(), range, range };
 
     array<array<Vec3d, 8>, 2> corners = {};
     corners[0] = {
         Vec3d{0, 0, 0},
         p1,
-        Vec3d{0, 1, 0},
+        Vec3d{0, range, 0},
         p2,
-        Vec3d{0, 0, 1},
+        Vec3d{0, 0, range},
         p3,
-        Vec3d{0, 1, 1},
+        Vec3d{0, range, range},
         p4,
     };
     corners[1] = {
         p1,
-        Vec3d{1, 0, 0},
+        Vec3d{range, 0, 0},
         p2,
-        Vec3d{1, 1, 0},
+        Vec3d{range, range, 0},
         p3,
-        Vec3d{1, 0, 1},
+        Vec3d{range, 0, range},
         p4,
-        Vec3d{1, 1, 1},
+        Vec3d{range, range, range},
     };
     return acceptedByDomains(corners, N);
 }
