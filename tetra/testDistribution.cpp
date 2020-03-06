@@ -60,43 +60,39 @@ int testShouldBe50PercentageOfPrismaCube(int N) {
 template<int size>
 struct PointArray
 {
-    Randgen rnd = Randgen{};
     array<array<array<Vec3d, size>, size>, size> point = {};
+    PointArray();
+    Randgen rnd = Randgen{};
     int domains = size - 1;
     int ddom = double(size - 1);
-    PointArray()
+    double valueFor(int i)
     {
-        for (int i = 0; i < size; i++) {
-            for (int k = 0; k < size; k++) {
-                for (int j = 0; j < size; j++) {
-                    point[i][k][j] = Vec3d{ doubleFrom(i),doubleFrom(k),doubleFrom(j) };
-                }
-            }
-        }
+        if (i == 0 || i == domains) { return double(range) * double(i) / ddom; }
+        return randomAround(i);
     }
-    double doubleFrom(int i) { return double(range) * double(i) / ddom; }
     double randomAround(int i) { 
         return (((double(i)*ddom)-1)*range+2*rnd())/std::pow(ddom,2); 
     }
-    void randomize()
-    {
-        for (int i = 1; i < domains; i++) {
-            for (int k = 1; k < domains; k++) {
-                for (int l = 1; l < domains; l++) {
-                    point[i][k][l] = { {randomAround(i), randomAround(k), randomAround(l)} };
-                }
+};
+
+template<int size>
+PointArray<size>::PointArray()
+{
+    for (int x = 0; x < size; x++) {
+        for (int y = 0; y < size; y++) {
+            for (int z = 0; z < size; z++) {
+                point[x][y][z] = Vec3d{ valueFor(x),valueFor(y),valueFor(z) };
             }
         }
     }
-};
-
+}
 template <std::size_t size>
 array<int, size + 1> acceptedByDomains(array<array<Vec3d,8>, size> vertices, int N)
 {
     auto rnd = Randgen{};
 
     array<Octagon, size> octs = {};
-    for (int i = 0; i < size; i++) { octs[i] = Octagon(vertices[i]); }
+    for (int i = 0; i < size; i++) { octs[i] = Octagon{ vertices[i] }; }
     array<int, size + 1> counter = {};
     
     std::ofstream csv("doublePoints" + std::to_string(size) + ".csv");
@@ -120,10 +116,10 @@ array<int, size + 1> acceptedByDomains(array<array<Vec3d,8>, size> vertices, int
 
 std::array<int, 3> testPointShouldNeverBeAcceptedByTwoOrZeroDomains(int N) {
     auto rnd = Randgen{};
-    auto p1 = Vec3d{ rnd(), 0, 0 };
-    auto p2 = Vec3d{ rnd(), range, 0 };
-    auto p3 = Vec3d{ rnd(), 0, range };
-    auto p4 = Vec3d{ rnd(), range, range };
+    auto p1 = Vec3d{ 0.25 + 0.5 * rnd(), 0, 0 };
+    auto p2 = Vec3d{ 0.25 + 0.5 * rnd(), range, 0 };
+    auto p3 = Vec3d{ 0.25 + 0.5 * rnd(), 0, range };
+    auto p4 = Vec3d{ 0.25 + 0.5 * rnd(), range, range };
 
     array<array<Vec3d, 8>, 2> corners = {};
     corners[0] = {
@@ -155,7 +151,6 @@ std::array<int, domain*domain*domain+1> testHowOftenAcceptDomains(int N)
     using namespace tetra;
     const int size = domain + 1;
     PointArray<size> p;
-    p.randomize();
 
     const int numberOfDomains = domain * domain * domain; //int(std::pow(domain,3)) is not accepted
     array<array<Vec3d, 8>, numberOfDomains> vertices = {};
