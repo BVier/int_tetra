@@ -143,7 +143,7 @@ std::array<int, domain*domain*domain+1> testHowOftenAcceptDomains(int N)
     for (int i = 1; i < domain; i++) {
         for (int k = 1; k < domain; k++) {
             for (int l = 1; l < domain; l++) {
-                point[i][k][l] = { {randomAround(l, domain), randomAround(k, domain), randomAround(i,domain)} };
+                point[i][k][l] = { {randomAround(i, domain), randomAround(k, domain), randomAround(l,domain)} };
             }
         }
     }
