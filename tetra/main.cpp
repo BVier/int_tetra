@@ -23,10 +23,15 @@ int main()
 	for (int i = 0; i < 9; i++) {
 		printf("Accepted by %i domains: %i \n", i, acceptedBy[i]);
 	}
-	printf("\nTest multiple accept of one random Domain \n"); 
+	printf("\nTest multiple accept of one random Domain \n");
 	std::array<int, 28> acceptedBy2 = testFullyRandomizedCubeAcceptance(N);
 	for (int i = 0; i < 8; i++) {
 		printf("Accepted by %i domains: %i \n", i, acceptedBy2[i]);
+	}
+	printf("\nTest multiple accept of mini Grid Cluster \n");
+	std::array<int, 65> acceptedBy3 = testAcceptanceInMiniGrid(N);
+	for (int i = 0; i < 8; i++) {
+		printf("Accepted by %i domains: %i \n", i, acceptedBy3[i]);
 	}
 
 	bool pointInTheMiddle = testRandomizedTetrashouldAcceptPointInTheMiddle();

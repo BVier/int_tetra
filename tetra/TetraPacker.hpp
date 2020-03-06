@@ -10,7 +10,7 @@ namespace tetra {
 	}
 
 
-	const int16_t precision = 1000;
+	const int16_t precision = 10;
 
 	typedef std::array<double, 3> Vec3d;
 
